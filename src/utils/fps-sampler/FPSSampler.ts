@@ -31,7 +31,7 @@ export default class FPSSampler {
     );
   }
 
-  private requestNewFrame() {
+  private requestNewFrame(): void {
     this.requestAnimationFrameId = window.requestAnimationFrame(
       this.loop.bind(this)
     );
