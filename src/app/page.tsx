@@ -16,29 +16,41 @@ import { faker } from "@faker-js/faker";
 
 import { useEffect, useState } from "react";
 
+type User = {
+  name: string;
+  avatar: string;
+  initials: string;
+};
+
 export default function Home() {
-  const [user] = useState(() => {
+  const [user, setUser] = useState<User>();
+
+  useEffect(() => {
     const name = `${faker.person.firstName()} ${faker.person.lastName()}`;
     const initials = name
       .split(" ")
       .map((part) => part.charAt(0))
       .join("");
 
-    return {
+    const user = {
       initials,
       name: `${faker.person.firstName()} ${faker.person.lastName()}`,
       avatar: faker.image.avatar(),
     };
-  });
 
-  useEffect(() => {
+    setUser(user);
+
     const fpsSampler = new FPSSampler(user.name);
 
     fpsSampler.start();
     return () => {
       fpsSampler.stop();
     };
-  }, [user]);
+  }, []);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="flex items-center justify-center h-screen">
