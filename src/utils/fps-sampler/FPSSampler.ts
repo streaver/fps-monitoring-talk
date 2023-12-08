@@ -8,6 +8,11 @@ export default class FPSSampler {
   requestAnimationFrameId?: number;
   fps: number = 0;
   previousTime: number = performance.now();
+  user: string;
+
+  constructor(user: string) {
+    this.user = user;
+  }
 
   // Starts the FPS sampling process
   start(): void {
@@ -58,6 +63,7 @@ export default class FPSSampler {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-user": this.user,
       },
       body: JSON.stringify({ fps: fpsValue }),
     });
@@ -83,6 +89,7 @@ export default class FPSSampler {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-user": this.user,
       },
       body: JSON.stringify({ fps: normalizedFPS }),
     });
