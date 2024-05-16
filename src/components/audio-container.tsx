@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
-import React from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useCallback, useEffect, useRef } from "react";
 
 const AudioContainer: React.FC = () => {
-  const audioRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationRef = useRef<number | null>(null);
+  const volume = useMotionValue(0);
 
-  const setupAudioContext = async () => {
+  const scale = useTransform(volume, [0, 10], [1, 2]); // Map volume from 0-10 to scale 1-2
+
+  const setupAudioContext = useCallback(async () => {
     if (navigator.mediaDevices.getUserMedia) {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audioContext = new AudioContext();
@@ -21,58 +21,36 @@ const AudioContainer: React.FC = () => {
 
       const source = audioContext.createMediaStreamSource(stream);
       source.connect(analyser);
-      draw();
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      const updateVolume = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const average =
+          dataArray.reduce((sum, value) => sum + value) / dataArray.length;
+
+        // Normalize and amplify the volume value using logarithmic scale
+        const normalizedVolume = (Math.log1p(average) / Math.log1p(256)) * 10;
+
+        volume.set(normalizedVolume);
+
+        requestAnimationFrame(updateVolume);
+      };
+
+      updateVolume();
     }
-  };
-
-  const draw = () => {
-    if (!analyserRef.current || !audioRef.current) {
-      return;
-    }
-
-    const analyser = analyserRef.current;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    analyser.getByteFrequencyData(dataArray);
-
-    // Clear previous drawing
-    const canvas = audioRef.current;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.fillStyle = "rgb(255, 255, 255)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const barWidth = (canvas.width / bufferLength) * 2.5;
-      let barHeight;
-      let x = 0;
-
-      for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i];
-
-        ctx.fillStyle = `rgb(${barHeight + 100},50,50)`;
-        ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
-
-        x += barWidth + 1;
-      }
-    }
-
-    animationRef.current = requestAnimationFrame(draw);
-  };
+  }, [volume]);
 
   useEffect(() => {
     setupAudioContext();
+  }, [setupAudioContext]);
 
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
-
-  return <canvas ref={audioRef} className="mx-auto w-28 h-10 bg-primary m-5" />;
+  return (
+    <motion.div
+      className="w-5 h-5 bg-red-500 rounded-full absolute bottom-2 right-2 z-10"
+      style={{ scale }}
+    />
+  );
 };
 
 export default AudioContainer;

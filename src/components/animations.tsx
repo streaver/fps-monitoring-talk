@@ -2,9 +2,9 @@
 
 import AudioContainer from "@/components/audio-container";
 import { Label } from "@/components/ui/label";
-import VideoContainer from "@/components/video-container";
 import { motion } from "framer-motion";
 import Confetti from "./confetti";
+import VideoContainer from "./video-container";
 
 const Animations: React.FC = () => {
   return (
@@ -30,8 +30,10 @@ const Animations: React.FC = () => {
 
       <div className="text-center">
         <Label>Live Video</Label>
-        <VideoContainer />
-        <AudioContainer />
+        <div className="mx-auto w-40 h-40 m-5 rounded-md bg-primary relative">
+          <VideoContainer />
+          <AudioContainer />
+        </div>
       </div>
 
       <div className="text-center">
