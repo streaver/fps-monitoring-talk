@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import UserDetails from "@/components/user-details";
 import FPSSampler from "@/utils/fps-sampler/FPSSampler";
 import { faker } from "@faker-js/faker";
+import AnimatedCursor from "react-animated-cursor";
 
 import { useEffect, useState } from "react";
 
@@ -54,6 +55,14 @@ export default function Home() {
 
   return (
     <div className="flex items-center justify-center h-screen">
+      <AnimatedCursor
+        innerSize={8}
+        outerSize={8}
+        color="193, 11, 111"
+        outerAlpha={0.2}
+        innerScale={0.7}
+        outerScale={5}
+      />
       <Card className="w-4/5">
         <CardHeader>
           <CardTitle>Demo</CardTitle>
