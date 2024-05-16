@@ -26,7 +26,7 @@ const VideoContainer: React.FC = () => {
       ref={videoRef}
       autoPlay
       playsInline
-      className="mx-auto w-28 h-28 bg-primary m-5 rounded-md object-cover"
+      className="mx-auto w-40 h-40 bg-primary m-5 rounded-md object-cover"
     />
   );
 };
