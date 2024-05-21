@@ -47,7 +47,7 @@ const AudioContainer: React.FC = () => {
 
   return (
     <motion.div
-      className="w-5 h-5 bg-red-500 rounded-full absolute bottom-2 right-2 z-10"
+      className="w-3 h-3 bg-red-500 rounded-full absolute bottom-2 right-2 z-10"
       style={{ scale }}
     />
   );

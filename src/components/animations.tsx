@@ -12,7 +12,7 @@ const Animations: React.FC = () => {
       <div className="text-center">
         <Label>requestAnimationFrame</Label>
         <motion.div
-          className="mx-auto w-40 h-40 bg-primary m-5 rounded-md"
+          className="mx-auto w-20 h-20 bg-primary m-5 rounded-md"
           initial={{ rotate: 0 }}
           animate={{ rotate: 360 }}
           transition={{
@@ -25,12 +25,12 @@ const Animations: React.FC = () => {
 
       <div className="text-center">
         <Label>CSS</Label>
-        <div className="mx-auto w-40 h-40 bg-primary m-5 rounded-md animate-spin" />
+        <div className="mx-auto w-20 h-20 bg-primary m-5 rounded-md animate-spin" />
       </div>
 
       <div className="text-center">
         <Label>Live Video</Label>
-        <div className="mx-auto w-40 h-40 m-5 rounded-md bg-primary relative">
+        <div className="mx-auto w-20 h-20 m-5 rounded-md bg-primary relative">
           <VideoContainer />
           <AudioContainer />
         </div>

@@ -7,7 +7,7 @@ const Confetti: React.FC = () => {
     useMeasure<HTMLDivElement>();
 
   return (
-    <div ref={ref} className="mx-auto w-40 h-40 m-5 rounded-md relative">
+    <div ref={ref} className="mx-auto w-20 h-20 m-5 rounded-md relative">
       <ReactConfetti
         width={width}
         height={height}
