@@ -5,22 +5,21 @@ const FPS_EVENT_NAME = "FPS";
 const VISIBILITY_CHANGE_EVENT_NAME = "VISIBILITY_CHANGE";
 
 export default class FPSSampler {
-  requestAnimationFrameId?: number;
-  fps: number = 0;
-  previousTime: number = performance.now();
-  user: string;
+  private requestAnimationFrameId?: number;
+  private fps: number = 0;
+  private previousTime: number = performance.now();
+  private user: string;
+  private visibilityChangeHandler: () => void;
 
   constructor(user: string) {
     this.user = user;
+    this.visibilityChangeHandler = this.handleVisibilityChange.bind(this);
   }
 
   // Starts the FPS sampling process
   public start(): void {
-    this.restart();
-    this.visibilityChangeHandler = this.visibilityChangeHandler.bind(this);
-
+    this.reset();
     document.addEventListener("visibilitychange", this.visibilityChangeHandler);
-
     this.requestNewFrame();
   }
 
@@ -45,9 +44,9 @@ export default class FPSSampler {
 
   // Main loop for FPS calculation
   private loop(currentTime: number): void {
-    if (Math.floor(currentTime - this.previousTime) > ONE_SECOND) {
+    if (currentTime - this.previousTime >= ONE_SECOND) {
       this.reportFPS();
-      this.restart();
+      this.reset();
     } else {
       this.fps += 1;
     }
@@ -55,53 +54,51 @@ export default class FPSSampler {
     this.requestNewFrame();
   }
 
-  // Reports the calculated FPS to the EventsCollector
+  // Reports the calculated FPS
   private reportFPS(): void {
-    const fpsValue = Math.min(this.fps, MAX_FPS); // Negative value for percentile computation
-    // EventsCollector.collect({ name: FPS_EVENT_NAME, value: fpsValue });
-
-    fetch("http://localhost:5001/api/events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user": this.user,
-      },
-      body: JSON.stringify({ fps: fpsValue }),
-    });
+    const fpsValue = Math.min(this.fps, MAX_FPS);
+    this.sendFPS(fpsValue);
   }
 
   // Resets FPS counters and time
-  private restart() {
+  private reset(): void {
     this.previousTime = performance.now();
     this.fps = 0;
   }
 
   // Reports the final FPS count before stopping or visibility change
-  private flush() {
+  private flush(): void {
     if (this.fps === 0) return; // Avoids reporting 0 FPS, which is inaccurate during fast tab switches
 
     const currentTime = performance.now();
     const timeElapsed = currentTime - this.previousTime;
-    // Normalizes FPS for the actual time elapsed, adjusting for partial seconds
     const normalizedFPS = Math.round((this.fps * ONE_SECOND) / timeElapsed);
-    // EventsCollector.collect({ name: FPS_EVENT_NAME, value: Math.min(normalizedFPS, MAX_FPS) * -1 });
 
-    fetch("http://localhost:5001/api/events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user": this.user,
-      },
-      body: JSON.stringify({ fps: normalizedFPS }),
-    });
+    this.sendFPS(normalizedFPS);
   }
 
   // Handles visibility change events to pause/resume FPS measurement
-  private visibilityChangeHandler() {
+  private handleVisibilityChange(): void {
     const isVisible = document.visibilityState === "visible";
-    // Restarts or flushes the FPS calculation based on the visibility
-    isVisible ? this.restart() : this.flush();
-    // Collects visibility change events for additional insights
-    // EventsCollector.collect({ name: VISIBILITY_CHANGE_EVENT_NAME, isVisible });
+    if (isVisible) {
+      this.reset();
+    } else {
+      this.flush();
+    }
+  }
+
+  private async sendFPS(fps: number): Promise<void> {
+    try {
+      await fetch("http://localhost:5001/api/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user": this.user,
+        },
+        body: JSON.stringify({ fps }),
+      });
+    } catch (error) {
+      console.error("Failed to send FPS data:", error);
+    }
   }
 }
