@@ -15,8 +15,9 @@ export default class FPSSampler {
   }
 
   // Starts the FPS sampling process
-  start(): void {
+  public start(): void {
     this.restart();
+    this.visibilityChangeHandler = this.visibilityChangeHandler.bind(this);
 
     document.addEventListener("visibilitychange", this.visibilityChangeHandler);
 
@@ -24,7 +25,7 @@ export default class FPSSampler {
   }
 
   // Stops the FPS sampling and removes event listeners
-  stop(): void {
+  public stop(): void {
     if (this.requestAnimationFrameId) {
       window.cancelAnimationFrame(this.requestAnimationFrameId);
       this.flush();
