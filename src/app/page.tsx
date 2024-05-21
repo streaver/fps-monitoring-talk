@@ -1,4 +1,5 @@
 "use client";
+import { ExpandIcon, ShrinkIcon } from "lucide-react";
 
 import Animations from "@/components/animations";
 import PerformanceProblems from "@/components/performance-problems";
@@ -15,7 +16,8 @@ import FPSSampler from "@/utils/fps-sampler/FPSSampler";
 import { faker } from "@faker-js/faker";
 import AnimatedCursor from "react-animated-cursor";
 
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useCallback, useEffect, useState } from "react";
 
 type User = {
   name: string;
@@ -25,6 +27,7 @@ type User = {
 
 export default function Home() {
   const [user, setUser] = useState<User>();
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     const name = `${faker.person.firstName()} ${faker.person.lastName()}`;
@@ -49,6 +52,18 @@ export default function Home() {
     };
   }, []);
 
+  const toggleFullScreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullScreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullScreen(false);
+      }
+    }
+  }, []);
+
   if (!user) {
     return null;
   }
@@ -63,6 +78,16 @@ export default function Home() {
         innerScale={0.7}
         outerScale={5}
       />
+
+      <div className="absolute bottom-5 right-5">
+        <Button onClick={toggleFullScreen} variant="ghost">
+          {isFullScreen ? (
+            <ShrinkIcon className="h-4 w-4" />
+          ) : (
+            <ExpandIcon className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
       <Card className="w-4/5">
         <CardHeader>
           <CardTitle>Demo</CardTitle>
