@@ -9,19 +9,30 @@ import { fibonacci } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import React from "react";
+import { toast } from "sonner";
 
 const PerformanceProblems: React.FC<{ sampler: FPSSampler | null }> = ({
   sampler,
 }) => {
   const [number, setNumber] = useState([30]);
-  const [result, setResult] = useState<number | null>(null);
   const [worker, setWorker] = useState<Worker | null>(null);
+
+  const startRef = React.useRef<number | null>(null);
 
   useEffect(() => {
     const newWorker = new Worker(new URL("@/lib/worker.ts", import.meta.url));
 
     newWorker.onmessage = (e: MessageEvent) => {
-      setResult(e.data);
+      const end = performance.now();
+
+      toast(
+        <div className="flex flex-col space-y-1">
+          <span className="font-bold">Result without worker</span>
+          <span>Result: {e.data}</span>
+          <span>Time: {(end - startRef.current!).toFixed(2)}ms</span>
+          <span>Lost frames: 0</span>
+        </div>
+      );
     };
 
     setWorker(newWorker);
@@ -34,14 +45,25 @@ const PerformanceProblems: React.FC<{ sampler: FPSSampler | null }> = ({
   const handleNonWorkerClick = () => {
     sampler?.sendEvent("fibonacci-without-worker", number[0]);
 
+    const start = performance.now();
     const result = fibonacci(number[0]);
+    const end = performance.now();
 
-    setResult(result);
+    toast(
+      <div className="flex flex-col space-y-1">
+        <span className="font-bold">Result without worker</span>
+        <span>Result: {result}</span>
+        <span>Time: {(end - start).toFixed(2)}ms</span>
+        <span>Lost frames: {parseInt(((end - start) / 16).toString())}</span>
+      </div>
+    );
   };
 
   const handleWorkerClick = () => {
     if (worker) {
       sampler?.sendEvent("fibonacci-with-worker", number[0]);
+
+      startRef.current = performance.now();
       worker.postMessage(number);
     }
   };
@@ -57,12 +79,9 @@ const PerformanceProblems: React.FC<{ sampler: FPSSampler | null }> = ({
         onValueChange={setNumber}
       />
 
-      <div className="flex justify-between">
+      <div className="flex space-x-5">
         <Button onClick={handleNonWorkerClick}>Compute without worker</Button>
         <Button onClick={handleWorkerClick}>Compute with worker</Button>
-
-        {/* Show result */}
-        <div>{result !== null && <p>Result: {result}</p>}</div>
       </div>
     </div>
   );
