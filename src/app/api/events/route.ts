@@ -11,9 +11,17 @@ export async function POST(request: Request) {
   const bucket = `fps`;
   const writeClient = client.getWriteApi(org, bucket, "ns");
 
-  const point = new Point("frames_per_second")
-    .tag("user", user)
-    .intField("fps", JSON.parse(await request.text()).fps);
+  const { eventName, data } = await request.json();
+
+  const point = new Point(eventName).tag("user", user);
+
+  if (eventName === "fps") {
+    point.intField("fps", data.fps);
+  } else if (eventName === "visibility_change") {
+    point.booleanField("isVisible", data.isVisible);
+  } else {
+    point.intField("value", data);
+  }
 
   writeClient.writePoint(point);
   writeClient.flush();

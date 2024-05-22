@@ -1,8 +1,8 @@
 // Constants for time and FPS limits
 const ONE_SECOND = 1000;
 const MAX_FPS = 60;
-const FPS_EVENT_NAME = "FPS";
-const VISIBILITY_CHANGE_EVENT_NAME = "VISIBILITY_CHANGE";
+const FPS_EVENT_NAME = "fps";
+const VISIBILITY_CHANGE_EVENT_NAME = "visibility_change";
 
 export default class FPSSampler {
   private requestAnimationFrameId?: number;
@@ -85,9 +85,15 @@ export default class FPSSampler {
     } else {
       this.flush();
     }
+
+    this.sendEvent(VISIBILITY_CHANGE_EVENT_NAME, { isVisible });
   }
 
   private async sendFPS(fps: number): Promise<void> {
+    this.sendEvent(FPS_EVENT_NAME, { fps });
+  }
+
+  public async sendEvent(eventName: string, data: any): Promise<void> {
     try {
       await fetch("http://localhost:5001/api/events", {
         method: "POST",
@@ -95,10 +101,10 @@ export default class FPSSampler {
           "Content-Type": "application/json",
           "x-user": this.user,
         },
-        body: JSON.stringify({ fps }),
+        body: JSON.stringify({ eventName, data }),
       });
     } catch (error) {
-      console.error("Failed to send FPS data:", error);
+      console.error("Failed to send event data:", error);
     }
   }
 }

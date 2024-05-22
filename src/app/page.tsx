@@ -26,6 +26,7 @@ type User = {
 };
 
 export default function Home() {
+  const [sampler, setSampler] = useState<FPSSampler | null>(null);
   const [user, setUser] = useState<User>();
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -47,6 +48,9 @@ export default function Home() {
     const fpsSampler = new FPSSampler(user.name);
 
     fpsSampler.start();
+
+    setSampler(fpsSampler);
+
     return () => {
       fpsSampler.stop();
     };
@@ -106,7 +110,7 @@ export default function Home() {
 
             <h2 className="text-lg font-semibold">Performance Problems</h2>
 
-            <PerformanceProblems />
+            <PerformanceProblems sampler={sampler} />
 
             <Separator />
 

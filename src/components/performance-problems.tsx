@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { fibonacci } from "@/lib/utils";
+import FPSSampler from "@/utils/fps-sampler/FPSSampler";
 
 import { useState } from "react";
 
 import React from "react";
 
-const PerformanceProblems: React.FC = () => {
+const PerformanceProblems: React.FC<{ sampler: FPSSampler | null }> = ({
+  sampler,
+}) => {
   const [n, setN] = useState([30]);
   return (
     <div className="flex flex-col space-y-5">
@@ -19,6 +22,8 @@ const PerformanceProblems: React.FC = () => {
       <div className="flex justify-between">
         <Button
           onClick={() => {
+            sampler?.sendEvent("fibonacci", n[0]);
+
             const result = fibonacci(n[0]);
           }}
         >
