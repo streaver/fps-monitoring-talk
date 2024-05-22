@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import FPSSampler from "@/lib/fps-sampler/FPSSampler";
 import { fibonacci } from "@/lib/utils";
-import FPSSampler from "@/utils/fps-sampler/FPSSampler";
 
 import { useState } from "react";
 

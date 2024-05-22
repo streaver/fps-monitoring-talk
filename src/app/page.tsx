@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import UserDetails from "@/components/user-details";
-import FPSSampler from "@/utils/fps-sampler/FPSSampler";
+import FPSSampler from "@/lib/fps-sampler/FPSSampler";
 import { faker } from "@faker-js/faker";
 import AnimatedCursor from "react-animated-cursor";
 
