@@ -20,6 +20,7 @@ export default class FPSSampler {
   public start(): void {
     this.reset();
     document.addEventListener("visibilitychange", this.visibilityChangeHandler);
+    this.sendEvent(VISIBILITY_CHANGE_EVENT_NAME, { isVisible: true });
     this.requestNewFrame();
   }
 
@@ -45,19 +46,13 @@ export default class FPSSampler {
   // Main loop for FPS calculation
   private loop(currentTime: number): void {
     if (currentTime - this.previousTime >= ONE_SECOND) {
-      this.reportFPS();
+      this.sendFPS(this.fps);
       this.reset();
     } else {
       this.fps += 1;
     }
 
     this.requestNewFrame();
-  }
-
-  // Reports the calculated FPS
-  private reportFPS(): void {
-    const fpsValue = Math.min(this.fps, MAX_FPS);
-    this.sendFPS(fpsValue);
   }
 
   // Resets FPS counters and time
@@ -90,7 +85,9 @@ export default class FPSSampler {
   }
 
   private async sendFPS(fps: number): Promise<void> {
-    this.sendEvent(FPS_EVENT_NAME, { fps });
+    const fpsValue = Math.min(fps, MAX_FPS);
+
+    this.sendEvent(FPS_EVENT_NAME, { fps: fpsValue });
   }
 
   public async sendEvent(eventName: string, data: any): Promise<void> {
